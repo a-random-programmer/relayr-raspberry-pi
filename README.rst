@@ -75,7 +75,7 @@ sensor data in a more reusable way with a Python function like this:
 .. code-block:: python
 
     def read_temperature(device_id):
-        "Read float temperature value from 1wire device DS18B20_."
+        "Read float temperature value from 1wire device DS18B20."
         with open('/sys/bus/w1/devices/%s/w1_slave' % device_id) as f:
             text = f.read().strip()
             fragments = text.split()
