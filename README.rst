@@ -3,7 +3,7 @@ Relayr - Raspberry Pi - Demo
 
 This is a simple demo project that shows how to connect a simple
 sensor attached to a `Raspberry Pi`_ to the relayr_ cloud. It uses
-a digital temerature sensor, namely the very popular DS18B20_, and
+a digital temperature sensor, namely the very popular DS18B20_, and
 two simple Python_ scripts, one to send the sensor data to the cloud,
 and the other to receive it from there to be used for some other
 application. The entire sample code is provided in a 
@@ -22,7 +22,8 @@ bus) with three GPIO pins (power, ground and the actual data pin).
 .. figure:: picture1.jpeg
    :width: 100 %
 
-   Temperature sensor connected to a Raspberry Pi 2 B.
+   Temperature sensor connected to a Raspberry Pi 2 B (the USB dongle
+   is for connecting to the Wifi).
 
 After that you must ensure the 1wire communication device kernel
 module is loaded. The procedure for doing that is slightly different
@@ -37,12 +38,14 @@ modify the file ``/boot/config.txt`` as described here:
     pi@raspberrypi ~ $ sudo modprobe w1-gpio && sudo modprobe w1_therm
 
     # else:
+    pi@raspberrypi ~ $ uname -a
+    Linux raspberrypi 3.18.11-v7+ #781 SMP PREEMPT Tue Apr 21 18:07:59 BST 2015 armv7l GNU/Linux
     pi@raspberrypi ~ $ sudo nano /boot/config.txt
     # add this line at the bottom (and then reboot):
     # dtoverlay=w1-gpio
 
-Now you can then look for respective 1wire devices in your file system.
-Each DS18B20_ uses a unique ID that appears in this devices directory,
+Now you can look for respective 1wire devices in your file system. Each
+DS18B20_ sensor has a unique ID that appears in this devices directory,
 in our case ``28-000004a365ef``. The temperature value is accessible
 under the respective path ending in ``w1_slave`` in the last line
 right next to the string ``t=`` (multiplied by 1000):
@@ -100,8 +103,8 @@ the sensor:
     26.562
     25.875
 
-Now that the sensor is working and delivers data it's time to
-push that into the relayr cloud in the next section.
+Now that the sensor is working and delivers data it's time to push
+that data into the relayr cloud as shown in the next section.
 
 
 Create a device prototype in the relayr dashboard
@@ -117,15 +120,16 @@ On the next page you create a `relayr device prototype`_ by first
 entering a name for your device. Clicking on "Add prototype" then 
 will show a page with some credentials which you should save as they
 are necessary for connecting your sensor, later. These credentials
-come as a JSON dictionary like this:
+come as a JSON dictionary like this (don't use those shown here, as
+they are made up):
 
 .. code-block:: python
 
     {
-      "user":     "565738d3-18ef-431c-b055-debb1a1be13c",
-      "password": "431SsprjRXbX",
-      "clientId": "TVlc40xjvQxywVd67GhvhPA",
-      "topic":    "/v1/565738d3-18ef-431c-b055-debb1a1be13c/"
+      "user":     "565738d3-29ef-442d-b055-debb1a1be13c",
+      "password": "442SsprjRXbY",
+      "clientId": "TVlc51xjvQxywVd67GhvhPA",
+      "topic":    "/v1/565738d3-29ef-442d-b055-debb1a1be13c/"
     } 
 
 
@@ -136,41 +140,37 @@ You can publish your data using MQTT_ (a protocol for communicating
 messages from machine to machine) which needs to be installed on
 your Raspberry Pi if not available, yet. The ``paho-mqtt`` package
 provides MQTT support for Python and can be easily installed as a 
-Python package like this:
+Python package with ``pip`` like this (install ``pip`` first if you
+don't have it, yet):
 
 .. code-block:: bash
 
-    wget https://pypi.python.org/packages/source/p/paho-mqtt/paho-mqtt-1.1.tar.gz
-    tar xfz paho-mqtt-1.1.tar.gz
-    cd paho-mqtt-1.1
-    python setup.py install
+    pi@raspberrypi ~ $ sudo apt-get install python-pip
+    pi@raspberrypi ~ $ sudo pip install paho-mqtt==1.1
 
-.. code-block:: bash
-
-    pip install paho-mqtt
-
-You have successfully installed it if you can run this in Python
-without any error: ``import paho``.
+You have successfully installed it if you can run this statement in
+Python without any error: ``import paho``.
 
 Then you copy the sample Python snippet from the dashboard prototype
 page that you've seen when creating a prototype. The `GitHub repository`_
-contains a file named ``publish_data.py`` which is a slightly modified
-verion of that code snippet from the dashboard. If you start it on your
-Raspberry Pi it will run in an endless loop, reading the temperature
-value and publishing it once per second to the relayr cloud.
+contains a file named ``publish_data.py`` which is a slightly expanded
+version of that code snippet from the dashboard. If you start it on your
+Raspberry Pi (first make sure, you use your own credentials!) it will run
+in an endless loop, reading temperature values and publishing them one
+per second to the relayr cloud.
 
 
 Watch your sensor data on the relayr dashboard
 ----------------------------------------------
 
 As you push your data into the relayr cloud you can see the live values
-as they change in the relayr dashboard. In the following screenshot the
+as they change in the relayr dashboard_. In the following screenshot the
 device prototype was named Shiny:
 
 .. figure:: picture2.png
    :width: 100 %
 
-   Widget showing temperature of the device prototype in the relayr 
+   Widget showing temperature of your device prototype in the relayr
    dashboard.
 
 
@@ -201,20 +201,29 @@ the data values as received:
 If you use one of the relayr SDKs like the `Python SDK`_ this will become
 even more convenient, reducing the sample code to access your data
 by more than half. The `GitHub repository`_ contains a script named
-``fetch_data_sdk.py`` to show how to do that.
+``fetch_data_sdk.py`` to show how to do that. If you are on a fresh
+Raspberry Pi, make sure you update its Debian package list and install
+some developer packages, before installing the newest relayr package
+from GitHub like this:
+
+.. code-block:: bash
+
+   pi@raspberrypi ~ $ sudo apt-get update
+   pi@raspberrypi ~ $ sudo apt-get install python-dev libffi-dev libssl-dev
+   pi@raspberrypi ~ $ pip install git+https://github.com/relayr/python-sdk
 
 
 Wrap-Up
 -------
 
-In this simple demo project you've seen how you can easily connect 
-a simple temerature sensor first to a `Raspberry Pi`_ and then to the 
-relayr_ cloud, publishing its data into that cloud. There you can see 
-it displayed in a widget on your relayr dashboard, or with just a few 
-lines of code you can also fetch your data from the relayr cloud to 
-be used in some application. To publish and fetch the sensor data you 
-can use the MQTT package. To fetch it you can also use one of the more
-conveniant relayr SDKs, like the Python SDK.
+In this simple demo project you've seen how you can easily connect a
+simple temperature sensor to a `Raspberry Pi`_ and publish its data
+from there into the relayr_ cloud. There you can see it displayed live
+in a widget on your relayr dashboard, or with just a few lines of code
+you can fetch your data from the relayr cloud to be used in some
+application. You can use MQTT to publish and receive the sensor data,
+or one of the relayr SDKs, like the `Python SDK`_, for fetching the data
+more conveniently.
 
 Surely, you can use more exciting sensors and also publish
 data values more complex than a single float, e.g. a list of three
@@ -222,7 +231,9 @@ floats representing some geospatial information. Whenever you provide
 a *reading* known to the relayr dashboard it will show your data in
 a nice widget. And you can also publish something even more involved,
 like an object with deeper nesting levels. In that case the dashboard
-will show a generic widget. It's up to you and your use case.
+will show a generic widget. It's up to you and your use case. The source
+code on GitHub for the file ``publish_data.py`` has some commented lines
+of code to give you directions of how to do that.
 
 
 .. _MQTT: http://mqtt.org
