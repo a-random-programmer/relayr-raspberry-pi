@@ -153,7 +153,7 @@ Python without any error: ``import paho``.
 
 Then you copy the sample Python snippet from the dashboard prototype
 page that you've seen when creating a prototype. The `GitHub repository`_
-contains a file named ``publish_data.py`` which is a slightly expanded
+contains a file named ``publish_data_mqtt.py`` which is a slightly expanded
 version of that code snippet from the dashboard. If you start it on your
 Raspberry Pi (first make sure, you use your own credentials!) it will run
 in an endless loop, reading temperature values and publishing them one
@@ -232,8 +232,8 @@ a *reading* known to the relayr dashboard it will show your data in
 a nice widget. And you can also publish something even more involved,
 like an object with deeper nesting levels. In that case the dashboard
 will show a generic widget. It's up to you and your use case. The source
-code on GitHub for the file ``publish_data.py`` has some commented lines
-of code to give you directions of how to do that.
+code on GitHub for the file ``publish_data_mqtt.py`` has some commented
+lines of code to give you directions of how to do that.
 
 
 .. _MQTT: http://mqtt.org
