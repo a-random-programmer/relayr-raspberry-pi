@@ -25,7 +25,7 @@ creds = {
 
 
 # ATTENTION !!!
-# DO NOT try to set values under 200 ms of the server
+# DO NOT try to set values under 200 ms or the server
 # will kick you out
 publishing_period = 1000
 
